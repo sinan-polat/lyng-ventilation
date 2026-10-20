@@ -1,6 +1,6 @@
 // =========================================================
 // Air Plus ApS – lille webserver uden eksterne pakker
-//  - Viser hjemmesiden fra mappen /public
+//  - Viser hjemmesiden fra mappen /docs
 //  - POST /api/chat     -> chatbot (sender videre til Claude)
 //  - POST /api/kontakt  -> gemmer tilbudsforespørgsler i data/henvendelser.jsonl
 //
@@ -14,7 +14,7 @@ import { fileURLToPath } from 'node:url';
 import { SYSTEM_PROMPT } from './prompt.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const PUBLIC_DIR = path.join(__dirname, 'public');
+const PUBLIC_DIR = path.join(__dirname, 'docs');
 const DATA_DIR = path.join(__dirname, 'data');
 
 const PORT = Number(process.env.PORT) || 3000;
