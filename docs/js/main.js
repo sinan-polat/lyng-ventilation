@@ -1,5 +1,5 @@
 /* =========================================================
-   Air Plus ApS – interaktivitet på hjemmesiden
+   Lyng Ventilation ApS – interaktivitet på hjemmesiden
    ========================================================= */
 (function () {
   'use strict';
@@ -51,12 +51,10 @@
      INDEKLIMA-TJEK
      ========================================================= */
   var SOLUTIONS = [
-    { service: 'Ventilation & varmegenvinding', title: 'Ventilation med varmegenvinding', why: 'Fjerner fugt og brugt luft døgnet rundt – uden at smide varmen ud.', hits: ['fugt', 'luft', 'byg'] },
-    { service: 'Varmepumper', title: 'Varmepumpe', why: 'Erstatter fyret og sænker udgiften til opvarmning.', hits: ['regning', 'fyr'] },
-    { service: 'Isolering', title: 'Efterisolering', why: 'Mindsker varmetab og træk gennem loft, mure og rør.', hits: ['traek', 'regning'] },
-    { service: 'Klima & køl', title: 'Klima & køl', why: 'Holder temperaturen nede på varme dage – stille og uden træk.', hits: ['varmt'] },
-    { service: 'VVS & varmeanlæg', title: 'VVS & gulvvarme', why: 'Jævn varme i gulvet og et varmeanlæg, der passer til fremtiden.', hits: ['traek', 'fyr', 'byg'] },
-    { service: 'Teknisk rådgivning', title: 'Teknisk rådgivning', why: 'Vi måler og beregner, så du investerer i det, der virker.', hits: ['byg', 'luft', 'fugt'] }
+    { service: 'Nyt anlæg – bolig', title: 'Ventilation til boligen', why: 'Balanceret ventilation med varmegenvinding: frisk luft og mindre fugt – uden at smide varmen ud.', hits: ['fugt', 'luft', 'byg'] },
+    { service: 'Nyt anlæg – erhverv', title: 'Ventilation til erhverv', why: 'Godt indeklima på kontoret, i butikken eller institutionen, så folk trives og kan koncentrere sig.', hits: ['kontor', 'luft', 'byg'] },
+    { service: 'Indregulering', title: 'Indregulering', why: 'Vi måler og justerer anlægget, så hvert rum får den rigtige luftmængde – stille og energirigtigt.', hits: ['stoej', 'ujaevn', 'energi', 'kontor'] },
+    { service: 'Rådgivning og planlægning', title: 'Rådgivning og planlægning', why: 'Vi finder den rigtige løsning, før der investeres – og planlægger hele forløbet.', hits: ['byg', 'energi'] }
   ];
 
   var symptomBtns = $$('.symptom');
@@ -287,7 +285,7 @@
         formWrap.hidden = true;
         done.hidden = false;
       }).catch(function () {
-        showError('Forespørgslen kunne ikke sendes lige nu. Ring venligst på 50 50 50 50 – så hjælper vi dig med det samme.');
+        showError('Forespørgslen kunne ikke sendes lige nu. Ring venligst på 42 71 22 71 – så hjælper vi dig med det samme.');
       }).then(function () {
         btnSubmit.disabled = false;
         btnSubmit.textContent = 'Send forespørgsel';

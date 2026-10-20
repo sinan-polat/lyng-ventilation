@@ -1,5 +1,5 @@
 // =========================================================
-// Air Plus ApS – lille webserver uden eksterne pakker
+// Lyng Ventilation ApS – lille webserver uden eksterne pakker
 //  - Viser hjemmesiden fra mappen /docs
 //  - POST /api/chat     -> chatbot (sender videre til Claude)
 //  - POST /api/kontakt  -> gemmer tilbudsforespørgsler i data/henvendelser.jsonl
@@ -274,7 +274,7 @@ const server = http.createServer(async (req, res) => {
 });
 
 server.listen(PORT, () => {
-  console.log(`\n  Air Plus kører på  http://localhost:${PORT}`);
+  console.log(`\n  Lyng Ventilation kører på  http://localhost:${PORT}`);
   console.log(API_KEY
     ? `  Chatbot: aktiv (model: ${MODEL})\n`
     : '  Chatbot: IKKE aktiv – tilføj ANTHROPIC_API_KEY i .env-filen\n');

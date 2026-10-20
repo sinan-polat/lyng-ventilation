@@ -1,5 +1,5 @@
 /* =========================================================
-   Air Plus Assistent – chat-widget
+   Lyng Assistent – chat-widget
    Taler med serveren på /api/chat, som sender spørgsmålet
    videre til Claude og streamer svaret tilbage.
    ========================================================= */
@@ -9,18 +9,18 @@
   var CHAT_ENDPOINT = '/api/chat';
   var MAX_TURNS = 20; // hvor mange beskeder der sendes med som kontekst
 
-  var GREETING = 'Hej! Jeg er Air Plus\' digitale assistent. Spørg mig om **ventilation, varmepumper, VVS, klima og isolering** – fra hverdagsspørgsmål til tekniske detaljer.\n\nSkal du have hjælp til et konkret projekt, hjælper jeg dig også videre til et tilbud.';
+  var GREETING = 'Hej! Jeg er Lyng Ventilations digitale assistent. Spørg mig om **ventilation, indeklima, installation og indregulering** – fra hverdagsspørgsmål til tekniske detaljer.\n\nSkal du have hjælp til et konkret projekt, hjælper jeg dig også videre til en uforpligtende samtale.';
 
   var SUGGESTIONS = [
     { label: 'Hverdag', items: [
       'Hvor tit skal jeg skifte filter i mit ventilationsanlæg?',
       'Hvorfor dugger mine vinduer indvendigt?',
-      'Hvad koster det at få en varmepumpe?'
+      'Hvad koster et ventilationsanlæg til et parcelhus?'
     ] },
     { label: 'Teknik', items: [
-      'Hvad er forskellen på COP og SCOP?',
-      'Hvordan dimensioneres en luft/vand-varmepumpe?',
-      'Hvilke krav stiller BR18 til ventilation i boliger?'
+      'Hvad er indregulering, og hvorfor er det vigtigt?',
+      'Hvilke krav stiller BR18 til ventilation i boliger?',
+      'Hvordan virker varmegenvinding i et ventilationsanlæg?'
     ] }
   ];
 
@@ -239,8 +239,8 @@
       var msg;
       if (err && err.status === 429) msg = 'Der er stillet mange spørgsmål på kort tid. Vent et øjeblik, og prøv igen.';
       else if (err && (err.status === 404 || err.status === 405 || err.status === 503 || err instanceof TypeError))
-        msg = 'Chatten er ikke forbundet lige nu. Ring på 50 50 50 50 – så hjælper vi dig direkte.';
-      else msg = 'Noget gik galt. Prøv igen, eller ring på 50 50 50 50.';
+        msg = 'Chatten er ikke forbundet lige nu. Ring på 42 71 22 71 – så hjælper vi dig direkte.';
+      else msg = 'Noget gik galt. Prøv igen, eller ring på 42 71 22 71.';
       addError(msg, !(err && err.status === 503));
     }).then(function () {
       if (controller === myController) { controller = null; setBusy(false); }

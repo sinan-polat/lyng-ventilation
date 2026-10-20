@@ -1,7 +1,7 @@
 {
-  "name": "airplus-hjemmeside",
+  "name": "lyng-ventilation-hjemmeside",
   "version": "1.0.0",
-  "description": "Hjemmeside og AI-chatbot for Air Plus ApS",
+  "description": "Hjemmeside og AI-chatbot for Lyng Ventilation ApS",
   "type": "module",
   "private": true,
   "main": "server.js",

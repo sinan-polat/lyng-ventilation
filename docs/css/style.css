@@ -1,5 +1,5 @@
 /* =========================================================
-   Air Plus ApS – stylesheet
+   Lyng Ventilation ApS – stylesheet
    Farver: mørk "teknisk" blå (ink), orange = varme, blå = luft
    Skrift: Archivo (overskrifter, bred), Public Sans (brødtekst),
            JetBrains Mono (tekniske labels)
@@ -495,3 +495,16 @@ h1, h2, h3, h4 { text-wrap: balance; }
 .flow-accent { stroke: var(--accent); }
 .drawing .fill-air { fill: var(--air); }
 .drawing .fill-accent { fill: var(--accent); }
+
+
+/* ---------- Lyng: logo i header/footer/chat og "hvorfor os" ---------- */
+.brand-logo { height: 60px; width: auto; display: block; }
+@media (max-width: 520px) { .brand-logo { height: 50px; } }
+.footer-logo { width: 230px; height: auto; display: block; margin: -10px 0 12px -12px; }
+.chat-avatar-img { width: 40px; height: 40px; flex-shrink: 0; }
+.light-link { color: var(--white); text-decoration: none; }
+.light-link:hover { color: var(--air); }
+.why-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.why-list li { position: relative; padding-left: 28px; color: var(--muted); }
+.why-list li::before { content: ""; position: absolute; left: 4px; top: 5px; width: 8px; height: 14px; border-right: 3px solid var(--air-text); border-bottom: 3px solid var(--air-text); transform: rotate(45deg); }
+.why-list strong { color: var(--text); }

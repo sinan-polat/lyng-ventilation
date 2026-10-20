@@ -1,17 +1,18 @@
-# Air Plus ApS – hjemmeside og chatbot
+# Lyng Ventilation ApS – hjemmeside og chatbot
 
-Hjemmeside for Air Plus ApS (CVR 45238741) med indbygget AI-chatbot, indeklima-tjek og tilbudsformular.
+Hjemmeside for Lyng Ventilation ApS (CVR 45881016, Kildehuset 5, 2670 Greve, tlf. +45 42 71 22 71) med indbygget AI-chatbot, indeklima-tjek og tilbudsformular.
 
 ## Indhold
 
 ```
 OmarHjemmeside/
-├── public/              ← selve hjemmesiden
+├── docs/                ← selve hjemmesiden (GitHub Pages læser herfra)
 │   ├── index.html       ← al tekst og struktur
 │   ├── css/style.css    ← design (farver, skrift, layout)
 │   ├── js/main.js       ← indeklima-tjek, faner, filtre, slider, FAQ, tilbudsformular
 │   ├── js/chat.js       ← chatbotten (boblen nederst til højre)
 │   └── billeder/        ← læg billeder her (se billeder/README.txt)
+├── brand/logo/          ← alle logofiler (lang, kort, element × 4 farver × SVG/PNG/JPG)
 ├── server.js            ← lille server: viser siden + chatbot + modtager formularer
 ├── prompt.js            ← chatbottens instruktioner og viden om firmaet
 ├── .env.example         ← skabelon til indstillinger (API-nøgle m.m.)
@@ -20,9 +21,9 @@ OmarHjemmeside/
 
 ## 1. Se siden med det samme (uden chatbot)
 
-Dobbeltklik på `public/index.html`. Hele designet og al interaktivitet virker –
+Dobbeltklik på `docs/index.html`. Hele designet og al interaktivitet virker –
 men chatbotten og tilbudsformularen kræver serveren (punkt 2) og viser ellers en
-besked om at ringe på 50 50 50 50.
+besked om at ringe på 42 71 22 71.
 
 ## 2. Kør hele løsningen lokalt (med chatbot)
 
@@ -66,25 +67,30 @@ API-nøglen ligger kun på serveren og sendes aldrig til browseren.
 
 ## 5. Pladsholdere der skal udfyldes
 
-Søg efter `[` i `public/index.html` – alt i firkantede parenteser er pladsholdere:
+Søg efter `[` i `docs/index.html` – alt i firkantede parenteser er pladsholdere:
 
-- Område / by, adresse, e-mail, åbningstider
-- Autorisation
-- Antal års erfaring, løste opgaver, Trustpilot-score
-- Ejerens navn og historie
+- Serviceområde og åbningstider
+- Antal års erfaring, installerede anlæg, Trustpilot-score
+- Ejerens navn
 - Kundeudtalelser (brug kun rigtige!)
 - FAQ-svar markeret med [Tilpas]
 - Links til privatlivspolitik og cookies
-- Billeder (se `public/billeder/README.txt`)
+- Billeder (se `docs/billeder/README.txt`)
 
-Åbningstiderne, som "Åbent nu / Lukket nu" bruger, rettes øverst i `public/js/main.js`.
+Åbningstiderne, som "Åbent nu / Lukket nu" bruger, rettes øverst i `docs/js/main.js`.
 
 ## 6. Sæt siden online
 
-Fordi chatbotten kræver en server, skal siden ligge hos en udbyder, der kan køre
-Node.js, fx Render, Railway, Fly.io eller en lille VPS. Sæt `ANTHROPIC_API_KEY`
-som miljøvariabel hos udbyderen (læg aldrig `.env` op offentligt), og brug
-startkommandoen `node server.js`.
+### GitHub Pages (kun hjemmesiden)
+Repositoriet er sat op til GitHub Pages fra mappen `/docs` på `main`.
+Siden ligger på <https://sinan-polat.github.io/airplus/> (adressen skifter, hvis repositoriet omdøbes).
 
-Vil I kun have hjemmesiden uden chatbot, kan mappen `public/` lægges på et
-hvilket som helst webhotel (fx Simply, one.com, Netlify).
+GitHub Pages kan kun vise filer – den kan ikke køre `server.js`. Derfor virker
+**chatbotten og tilbudsformularen ikke** på GitHub Pages; de viser i stedet en
+besked om at ringe på 42 71 22 71. Det er fint til at vise designet frem.
+
+### Med chatbot og formular
+Læg hele repositoriet hos en udbyder, der kan køre Node.js, fx Render, Railway,
+Fly.io eller en lille VPS. Sæt `ANTHROPIC_API_KEY` som miljøvariabel hos
+udbyderen (læg aldrig `.env` op offentligt), og brug startkommandoen
+`node server.js`.
