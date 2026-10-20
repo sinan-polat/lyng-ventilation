@@ -508,3 +508,85 @@ h1, h2, h3, h4 { text-wrap: balance; }
 .why-list li { position: relative; padding-left: 28px; color: var(--muted); }
 .why-list li::before { content: ""; position: absolute; left: 4px; top: 5px; width: 8px; height: 14px; border-right: 3px solid var(--air-text); border-bottom: 3px solid var(--air-text); transform: rotate(45deg); }
 .why-list strong { color: var(--text); }
+
+/* =========================================================
+   KONVERTERING – mindre friktion (2-trins formular, tryghed,
+   mobil bundbjælke, genveje i chatten)
+   ========================================================= */
+.trust-line { display: flex; flex-wrap: wrap; gap: 6px 18px; margin: 14px 0 0; font-size: 14px; font-weight: 600; color: var(--muted); }
+.trust-line.light { color: var(--soft-dark); margin: -22px 0 18px; }
+.hero-quiz-link { display: inline-block; margin-bottom: 36px; color: var(--air); font-weight: 600; text-decoration: none; border-bottom: 1px solid rgba(46,196,240,.4); padding-bottom: 2px; }
+.hero-quiz-link:hover { color: var(--white); border-color: var(--white); }
+
+.btn-block { width: 100%; white-space: normal; }
+.link-btn { background: none; border: 0; padding: 6px 0; min-height: 44px; font-weight: 700; color: var(--air-text); cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
+.link-btn:hover { color: var(--ink); }
+
+.step-hint { margin: -6px 0 16px; }
+.tiles[data-field="service"] { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
+.tile strong { display: block; font-size: 16px; }
+.tile span { display: block; font-size: 13px; font-weight: 500; color: var(--muted); margin-top: 2px; }
+.tiles[data-field="service"] .tile { min-height: 72px; transition: border-color .15s, background .15s, transform .15s; }
+.tiles[data-field="service"] .tile:hover { transform: translateY(-2px); border-color: var(--ink); }
+.callback-row { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; margin-top: 14px; font-size: 15px; color: var(--muted); }
+
+.chosen { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 4px 12px; background: var(--air-tint); border-radius: 10px; padding: 4px 6px 4px 14px; margin: -4px 0 18px; font-size: 15px; }
+.field-row-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+@media (max-width: 520px) { .field-row-2 { grid-template-columns: minmax(0, 1fr); } }
+.field-label { font-weight: 600; font-size: 15px; }
+.more-details { margin: 16px 0 6px; border: 1px solid var(--line); border-radius: 12px; }
+.more-details summary { cursor: pointer; padding: 12px 16px; min-height: 44px; font-weight: 700; font-size: 15px; list-style: none; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.more-details summary::-webkit-details-marker { display: none; }
+.more-details summary::before { content: "+"; display: inline-grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: #EEF2F5; font-weight: 800; }
+.more-details[open] summary::before { content: "–"; }
+.more-details summary .muted { font-weight: 500; font-size: 14px; }
+.more-inner { padding: 4px 16px 16px; display: flex; flex-direction: column; gap: 14px; }
+.more-inner .tiles-sm { margin: 6px 0 0; }
+#quote .form-error { margin-bottom: 0; }
+#btn-submit { margin-top: 18px; }
+.done-icon-mail { background: var(--air-tint); color: var(--air-text); }
+
+/* Lille besked (fx "nummeret er kopieret") */
+.toast {
+  position: fixed; left: 50%; bottom: max(24px, env(safe-area-inset-bottom, 0px)); z-index: 300;
+  transform: translate(-50%, 20px); opacity: 0; pointer-events: none;
+  background: var(--ink); color: var(--white); padding: 12px 18px; border-radius: 12px;
+  font-weight: 600; font-size: 15px; box-shadow: 0 14px 34px rgba(11,27,43,.35);
+  transition: opacity .2s, transform .2s; max-width: calc(100vw - 32px); text-align: center;
+}
+.toast.is-visible { opacity: 1; transform: translate(-50%, 0); }
+
+/* Genveje i chatten */
+.chat-actions { display: flex; gap: 6px; padding: 8px 12px 0; background: var(--white); border-top: 1px solid var(--line); overflow-x: auto; }
+.chat-action { flex: 0 0 auto; min-height: 36px; padding: 0 12px; border-radius: 999px; border: 1px solid var(--line-2); background: var(--white); color: var(--ink); font-size: 13px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; text-decoration: none; }
+.chat-action:first-child { background: var(--accent); border-color: var(--accent); }
+.chat-action:hover { border-color: var(--ink); color: var(--ink); }
+.chat-form { border-top: 0; }
+
+/* Mobil bundbjælke */
+.mobile-cta { display: none; }
+@media (max-width: 760px) {
+  .mobile-cta {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 80;
+    display: grid; grid-template-columns: 1fr 1.4fr; gap: 8px;
+    padding: 10px max(12px, env(safe-area-inset-right, 0px)) max(10px, env(safe-area-inset-bottom, 0px)) max(12px, env(safe-area-inset-left, 0px));
+    background: rgba(11,27,43,.96); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+    border-top: 1px solid #1C3550; transition: transform .25s ease;
+  }
+  .mobile-cta.is-hidden { transform: translateY(110%); }
+  .mobile-cta a { min-height: 50px; border-radius: 999px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-weight: 800; font-size: 16px; text-decoration: none; }
+  .mobile-cta-call { border: 2px solid var(--white); color: var(--white); }
+  .mobile-cta-call:hover { color: var(--white); }
+  .mobile-cta-quote { background: var(--accent); color: var(--ink); }
+  .mobile-cta-quote:hover { color: var(--ink); }
+  body { padding-bottom: 76px; }
+  .chat-launcher { bottom: calc(84px + env(safe-area-inset-bottom, 0px)); }
+  .toast { bottom: calc(90px + env(safe-area-inset-bottom, 0px)); }
+}
+
+.contact-list dd { overflow-wrap: anywhere; }
+@media (max-width: 760px) {
+  /* Når kunden er ved formularen, skal chat-knappen ikke dække felterne */
+  body.in-contact .chat-launcher { opacity: 0; pointer-events: none; transform: translateY(20px); }
+  .chat-launcher { transition: opacity .2s, transform .2s; }
+}

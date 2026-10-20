@@ -175,6 +175,16 @@
   Array.prototype.forEach.call(document.querySelectorAll('[data-open-chat]'), function (b) {
     b.addEventListener('click', openChat);
   });
+  // Genveje i chatten: luk chatten og hop direkte til formularen
+  Array.prototype.forEach.call(document.querySelectorAll('[data-chat-quote]'), function (b) {
+    b.addEventListener('click', function () {
+      panel.hidden = true;
+      launcher.setAttribute('aria-expanded', 'false');
+      var cb = b.getAttribute('data-chat-quote') === 'callback';
+      var lastQ = turns.filter(function (t) { return t.role === 'user'; }).map(function (t) { return t.content; }).slice(-1)[0];
+      if (window.LyngQuote) window.LyngQuote.open(cb ? 'Bliv ringet op' : '', lastQ ? 'Fra chatten: ' + lastQ : '');
+    });
+  });
 
   /* ---------- Send spørgsmål ---------- */
   function ask(text) {

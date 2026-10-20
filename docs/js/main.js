@@ -9,10 +9,46 @@
     // 0 = søndag, 1 = mandag ... 6 = lørdag. [fra, til] i hele timer. Pladsholder: hverdage 07–16
     1: [7, 16], 2: [7, 16], 3: [7, 16], 4: [7, 16], 5: [7, 16]
   };
-  var CONTACT_ENDPOINT = '/api/kontakt';
+  // Hvor tilbudsformularen sendes hen. '/api/kontakt' virker, når siden kører via server.js.
+  // Ligger siden på GitHub Pages eller et webhotel, kan I indsætte en Formspree-adresse her,
+  // fx 'https://formspree.io/f/abcdwxyz'. Kan der ikke sendes, åbnes en udfyldt e-mail i stedet.
+  var FORM_ENDPOINT = '/api/kontakt';
+  var COMPANY_EMAIL = 'info@lyngventilation.dk';
+  var COMPANY_PHONE = '42 71 22 71';
+  var DRAFT_KEY = 'lyng-tilbud-kladde';
 
   var $ = function (sel, root) { return (root || document).querySelector(sel); };
   var $$ = function (sel, root) { return Array.prototype.slice.call((root || document).querySelectorAll(sel)); };
+
+  /* ---------- Måling (Google Tag Manager / GA4 kan lytte på dataLayer) ---------- */
+  function track(event, data) {
+    try {
+      window.dataLayer = window.dataLayer || [];
+      var obj = { event: event };
+      for (var k in data) obj[k] = data[k];
+      window.dataLayer.push(obj);
+    } catch (e) { /* ignorer */ }
+  }
+  window.lyngTrack = track;
+  document.addEventListener('click', function (e) {
+    var el = e.target.closest('[data-track]');
+    if (el) track('cta_click', { cta: el.getAttribute('data-track') });
+  });
+
+  /* ---------- Lille besked nederst på skærmen ---------- */
+  var toastEl = null, toastTimer = null;
+  function toast(msg) {
+    if (!toastEl) {
+      toastEl = document.createElement('div');
+      toastEl.className = 'toast';
+      toastEl.setAttribute('role', 'status');
+      document.body.appendChild(toastEl);
+    }
+    toastEl.textContent = msg;
+    toastEl.classList.add('is-visible');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { toastEl.classList.remove('is-visible'); }, 3500);
+  }
 
   /* ---------- Årstal i footer ---------- */
   var year = $('#year');
@@ -43,9 +79,22 @@
     var isOpen = !!hours && h >= hours[0] && h < hours[1];
     $$('[data-open-dot]').forEach(function (d) { d.classList.toggle('is-closed', !isOpen); });
     $$('[data-open-text]').forEach(function (t) {
-      t.textContent = isOpen ? 'Åbent nu – ring direkte' : 'Lukket nu – skriv, så ringer vi';
+      t.textContent = isOpen ? 'Åbent nu – ring direkte' : 'Lukket nu – bliv ringet op';
     });
   })();
+
+  /* ---------- Telefonnummer på computer: kopier i stedet for at "ringe" ---------- */
+  var hasTouch = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
+  $$('a[href^="tel:"]').forEach(function (a) {
+    a.addEventListener('click', function (e) {
+      track('phone_click', { device: hasTouch ? 'mobil' : 'computer' });
+      if (hasTouch) return; // på mobil ringer linket op som normalt
+      e.preventDefault();
+      var done = function () { toast('Nummeret ' + COMPANY_PHONE + ' er kopieret – ring fra din telefon.'); };
+      try { navigator.clipboard.writeText(COMPANY_PHONE).then(done, function () { toast('Ring til os på ' + COMPANY_PHONE); }); }
+      catch (err) { toast('Ring til os på ' + COMPANY_PHONE); }
+    });
+  });
 
   /* =========================================================
      INDEKLIMA-TJEK
@@ -64,6 +113,11 @@
   var recoCta = $('#reco-cta');
   var recoCount = $('#reco-count');
   var topService = null;
+
+  function selectedSymptomLabels() {
+    return symptomBtns.filter(function (b) { return b.getAttribute('aria-pressed') === 'true'; })
+      .map(function (b) { return b.textContent.trim(); });
+  }
 
   function renderRecommendations() {
     var selected = symptomBtns.filter(function (b) { return b.getAttribute('aria-pressed') === 'true'; })
@@ -112,8 +166,10 @@
     });
   });
   if (recoCta) {
-    recoCta.addEventListener('click', function () {
-      if (topService) Quote.chooseService(topService);
+    recoCta.addEventListener('click', function (e) {
+      e.preventDefault();
+      if (topService) Quote.open(topService, 'Det driller: ' + selectedSymptomLabels().join(', ') + '.');
+      track('cta_click', { cta: 'indeklima-tjek', service: topService });
     });
   }
 
@@ -141,9 +197,6 @@
       if (e.key === 'End') next = tabs[tabs.length - 1];
       if (next) { e.preventDefault(); selectTab(next, true); }
     });
-  });
-  $$('[data-service]').forEach(function (a) {
-    a.addEventListener('click', function () { Quote.chooseService(a.dataset.service); });
   });
 
   /* =========================================================
@@ -197,117 +250,233 @@
   });
 
   /* =========================================================
-     TILBUDSFORMULAR I 3 TRIN
+     TILBUDSFORMULAR – 2 TRIN
+     Trin 1: klik på en ydelse (går selv videre)
+     Trin 2: navn + telefon (resten er valgfrit)
      ========================================================= */
   var Quote = (function () {
     var form = $('#quote');
-    if (!form) return { chooseService: function () {} };
+    if (!form) return { open: function () {} };
 
+    var CALLBACK = 'Bliv ringet op';
     var state = { step: 1, service: '', building: '' };
     var panes = $$('.step-pane', form);
     var stepNum = $('#step-num'), stepName = $('#step-name'), bar = $('#progress-bar');
-    var btnBack = $('#btn-back'), btnNext = $('#btn-next'), btnSubmit = $('#btn-submit');
     var errorEl = $('#form-error');
-    var formWrap = $('#quote-form'), done = $('#quote-done');
-    var NAMES = ['', 'Ydelse', 'Bygning', 'Kontaktinfo'];
+    var formWrap = $('#quote-form'), done = $('#quote-done'), fallback = $('#quote-fallback');
+    var btnSubmit = $('#btn-submit');
+    var fName = $('#f-name'), fPhone = $('#f-phone'), fEmail = $('#f-email'), fZip = $('#f-zip'), fMsg = $('#f-msg');
+    var NAMES = ['', 'Hvad skal vi hjælpe med?', 'Dine kontaktoplysninger'];
+
+    /* --- kladde: husk det, kunden har skrevet --- */
+    function saveDraft() {
+      try {
+        localStorage.setItem(DRAFT_KEY, JSON.stringify({
+          service: state.service, building: state.building,
+          name: fName.value, phone: fPhone.value, email: fEmail.value, zip: fZip.value, msg: fMsg.value
+        }));
+      } catch (e) { /* ignorer */ }
+    }
+    function loadDraft() {
+      try {
+        var d = JSON.parse(localStorage.getItem(DRAFT_KEY) || 'null');
+        if (!d) return;
+        fName.value = d.name || ''; fPhone.value = d.phone || ''; fEmail.value = d.email || '';
+        fZip.value = d.zip || ''; fMsg.value = d.msg || '';
+        if (d.building) setTile('building', d.building);
+      } catch (e) { /* ignorer */ }
+    }
+    function clearDraft() { try { localStorage.removeItem(DRAFT_KEY); } catch (e) { /* ignorer */ } }
 
     function setTile(field, value) {
       state[field] = value;
       $$('.tiles[data-field="' + field + '"] .tile', form).forEach(function (t) {
         t.setAttribute('aria-pressed', t.dataset.value === value ? 'true' : 'false');
       });
-      if (field === 'service') $('#chosen-service').textContent = value || '–';
-      hideError();
     }
 
-    function go(step) {
+    function setService(service) {
+      setTile('service', service);
+      var isCallback = service === CALLBACK;
+      $('#chosen-service').textContent = service;
+      btnSubmit.textContent = isCallback ? 'Ring mig op' : 'Få mit uforpligtende tilbud';
+      form.classList.toggle('is-callback', isCallback);
+    }
+
+    function go(step, focus) {
       state.step = step;
       panes.forEach(function (p) { p.hidden = Number(p.dataset.step) !== step; });
       stepNum.textContent = step;
       stepName.textContent = NAMES[step];
-      bar.style.width = Math.round(step / 3 * 100) + '%';
-      btnBack.hidden = step === 1;
-      btnNext.hidden = step === 3;
-      btnSubmit.hidden = step !== 3;
+      bar.style.width = (step === 1 ? 50 : 100) + '%';
       hideError();
+      if (focus && step === 2) setTimeout(function () { (fName.value ? fPhone : fName).focus({ preventScroll: true }); }, 60);
     }
 
     function showError(msg) { errorEl.textContent = msg; errorEl.hidden = false; }
     function hideError() { errorEl.hidden = true; }
 
-    $$('.tile', form).forEach(function (t) {
+    // Trin 1: et klik på en ydelse går direkte videre
+    $$('.tiles[data-field="service"] .tile', form).forEach(function (t) {
       t.addEventListener('click', function () {
-        setTile(t.parentElement.dataset.field, t.dataset.value);
+        setService(t.dataset.value);
+        saveDraft();
+        go(2, true);
+        track('form_step', { step: 2, service: t.dataset.value });
       });
     });
-
-    btnNext.addEventListener('click', function () {
-      if (state.step === 1 && !state.service) return showError('Vælg venligst, hvad vi skal hjælpe med.');
-      if (state.step === 2 && !state.building) return showError('Vælg venligst en type bygning.');
-      go(state.step + 1);
-      var first = $('.step-pane:not([hidden]) input, .step-pane:not([hidden]) .tile', form);
-      if (first) first.focus({ preventScroll: true });
+    $$('.tiles[data-field="building"] .tile', form).forEach(function (t) {
+      t.addEventListener('click', function () {
+        setTile('building', state.building === t.dataset.value ? '' : t.dataset.value);
+        saveDraft();
+      });
     });
-    btnBack.addEventListener('click', function () { go(Math.max(1, state.step - 1)); });
+    $('#btn-callback').addEventListener('click', function () {
+      setService(CALLBACK);
+      go(2, true);
+      track('form_step', { step: 2, service: CALLBACK });
+    });
+    $('#btn-change').addEventListener('click', function () { go(1); });
+    [fName, fPhone, fEmail, fZip, fMsg].forEach(function (el) { el.addEventListener('input', saveDraft); });
+
+    // Dansk telefonnummer: 8 cifre, evt. med +45 / 0045 foran
+    function cleanPhone(v) {
+      var d = (v || '').replace(/\D/g, '');
+      if (d.length === 10 && d.indexOf('45') === 0) d = d.slice(2);
+      if (d.length === 12 && d.indexOf('0045') === 0) d = d.slice(4);
+      return d;
+    }
+
+    function mailtoLink(p) {
+      var lines = [
+        'Hej Lyng Ventilation', '',
+        'Jeg vil gerne ' + (p.service === CALLBACK ? 'ringes op.' : 'høre mere om: ' + p.service + '.'),
+        p.building ? 'Bygning: ' + p.building : '',
+        p.message ? 'Besked: ' + p.message : '',
+        '',
+        'Navn: ' + p.name,
+        'Telefon: ' + p.phone,
+        p.email ? 'E-mail: ' + p.email : '',
+        p.zip ? 'Postnummer: ' + p.zip : ''
+      ].filter(function (l, i, a) { return l !== '' || (a[i - 1] !== ''); });
+      return 'mailto:' + COMPANY_EMAIL +
+        '?subject=' + encodeURIComponent((p.service === CALLBACK ? 'Ring mig op' : 'Tilbud: ' + p.service) + ' – ' + p.name) +
+        '&body=' + encodeURIComponent(lines.join('\n'));
+    }
 
     form.addEventListener('submit', function (e) {
       e.preventDefault();
-      if (state.step !== 3) return;
-      var name = $('#f-name'), phone = $('#f-phone'), email = $('#f-email');
-      var digits = phone.value.replace(/\D/g, '');
-      name.setAttribute('aria-invalid', name.value.trim() ? 'false' : 'true');
-      phone.setAttribute('aria-invalid', digits.length >= 8 ? 'false' : 'true');
-      if (!name.value.trim() || digits.length < 8) return showError('Udfyld venligst navn og et gyldigt telefonnummer.');
-      if (email.value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value)) return showError('E-mailadressen ser ikke rigtig ud.');
+      if (state.step !== 2) return;
+      var phone = cleanPhone(fPhone.value);
+      fName.setAttribute('aria-invalid', fName.value.trim() ? 'false' : 'true');
+      fPhone.setAttribute('aria-invalid', phone.length === 8 ? 'false' : 'true');
+      if (!fName.value.trim()) { fName.focus(); return showError('Skriv venligst dit navn.'); }
+      if (phone.length !== 8) { fPhone.focus(); return showError('Telefonnummeret skal have 8 cifre, fx 12 34 56 78.'); }
+      if (fEmail.value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(fEmail.value)) { fEmail.focus(); return showError('E-mailadressen ser ikke rigtig ud.'); }
 
       var payload = {
         service: state.service,
         building: state.building,
-        message: $('#f-msg').value.trim(),
-        name: name.value.trim(),
-        phone: phone.value.trim(),
-        email: email.value.trim(),
-        zip: $('#f-zip').value.trim(),
+        message: fMsg.value.trim(),
+        name: fName.value.trim(),
+        phone: fPhone.value.trim(),
+        email: fEmail.value.trim(),
+        zip: fZip.value.trim(),
         website: $('#f-web').value // honeypot
       };
 
       btnSubmit.disabled = true;
+      var label = btnSubmit.textContent;
       btnSubmit.textContent = 'Sender…';
-      fetch(CONTACT_ENDPOINT, {
+
+      function showDone() {
+        $('#done-name').textContent = payload.name.split(' ')[0];
+        $('#done-what').textContent = payload.service === CALLBACK ? 'at blive ringet op' : 'om ' + payload.service.toLowerCase();
+        $('#done-phone').textContent = payload.phone;
+        formWrap.hidden = true; done.hidden = false; fallback.hidden = true;
+        done.focus();
+        clearDraft();
+        track('lead_submit', { service: payload.service, method: 'formular' });
+      }
+      function showFallback() {
+        $('#fallback-mail').href = mailtoLink(payload);
+        formWrap.hidden = true; fallback.hidden = false; done.hidden = true;
+        fallback.focus();
+        track('lead_fallback', { service: payload.service });
+      }
+
+      fetch(FORM_ENDPOINT, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
         body: JSON.stringify(payload)
       }).then(function (res) {
         if (!res.ok) throw new Error('HTTP ' + res.status);
-        $('#done-name').textContent = payload.name.split(' ')[0];
-        $('#done-service').textContent = payload.service.toLowerCase();
-        $('#done-phone').textContent = payload.phone;
-        formWrap.hidden = true;
-        done.hidden = false;
-      }).catch(function () {
-        showError('Forespørgslen kunne ikke sendes lige nu. Ring venligst på 42 71 22 71 – så hjælper vi dig med det samme.');
-      }).then(function () {
+        showDone();
+      }).catch(showFallback).then(function () {
         btnSubmit.disabled = false;
-        btnSubmit.textContent = 'Send forespørgsel';
+        btnSubmit.textContent = label;
       });
     });
 
-    $('#btn-reset').addEventListener('click', function () {
-      form.reset();
-      setTile('service', ''); setTile('building', '');
-      $$('input', form).forEach(function (i) { i.removeAttribute('aria-invalid'); });
-      done.hidden = true; formWrap.hidden = false;
-      go(1);
+    $('#fallback-mail').addEventListener('click', function () {
+      clearDraft();
+      track('lead_submit', { service: state.service, method: 'e-mail' });
     });
 
+    $$('[data-reset]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        form.reset();
+        setTile('service', ''); setTile('building', '');
+        $$('input', form).forEach(function (i) { i.removeAttribute('aria-invalid'); });
+        done.hidden = true; fallback.hidden = true; formWrap.hidden = false;
+        go(1);
+      });
+    });
+
+    loadDraft();
     go(1);
 
+    function scrollToForm() {
+      var target = $('#kontakt');
+      if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
     return {
-      chooseService: function (service) {
-        setTile('service', service);
-        formWrap.hidden = false; done.hidden = true;
-        go(2);
+      /** Åbn formularen – evt. med en valgt ydelse og en forudfyldt besked */
+      open: function (service, note) {
+        formWrap.hidden = false; done.hidden = true; fallback.hidden = true;
+        if (note && !fMsg.value.trim()) { fMsg.value = note; saveDraft(); }
+        if (service) { setService(service); go(2, true); }
+        else go(1);
+        scrollToForm();
       }
     };
   })();
+  window.LyngQuote = Quote;
+
+  // Alle knapper med data-service springer direkte til kontaktfelterne
+  $$('[data-service]').forEach(function (a) {
+    a.addEventListener('click', function (e) {
+      e.preventDefault();
+      Quote.open(a.dataset.service);
+    });
+  });
+  $$('[data-open-quote]').forEach(function (a) {
+    a.addEventListener('click', function (e) {
+      e.preventDefault();
+      var v = a.getAttribute('data-open-quote');
+      Quote.open(v === 'callback' ? 'Bliv ringet op' : '');
+    });
+  });
+
+  /* ---------- Mobil bundbjælke: skjul den, når formularen er i billedet ---------- */
+  var bar = $('#mobile-cta');
+  var contact = $('#kontakt');
+  if (bar && contact && 'IntersectionObserver' in window) {
+    new IntersectionObserver(function (entries) {
+      var inView = entries[0].isIntersecting;
+      bar.classList.toggle('is-hidden', inView);
+      document.body.classList.toggle('in-contact', inView);
+    }, { threshold: 0.05 }).observe(contact);
+  }
 })();

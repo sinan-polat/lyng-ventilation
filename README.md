@@ -44,10 +44,28 @@ Der skal ikke installeres nogen pakker – serveren bruger kun det, der følger 
 
 ## 3. Tilbudsformularen
 
-Forespørgsler gemmes i `data/henvendelser.jsonl` (én linje pr. henvendelse) og
-skrives i terminalen. **Før siden går live** bør de også sendes som e-mail til
-firmaet – se `TODO` i `handleContact` i `server.js` (fx med pakken `nodemailer`
-eller en tjeneste som Resend/Postmark).
+Formularen har 2 trin: kunden klikker på en ydelse (eller "Bliv bare ringet op") og
+skriver navn + telefon. Resten er valgfrit. Det kunden har valgt i indeklima-tjekket
+eller spurgt om i chatten, bliver automatisk sat ind i beskeden, og en kladde huskes,
+hvis kunden forlader siden.
+
+**Hvor henvendelserne ender:**
+
+- **Med server.js:** de gemmes i `data/henvendelser.jsonl` og skrives i terminalen.
+  Før siden går live, bør de også sendes som e-mail – se `TODO` i `handleContact` i `server.js`.
+- **På GitHub Pages / webhotel (uden server):** opret en gratis formular hos fx
+  [Formspree](https://formspree.io), og indsæt adressen øverst i `docs/js/main.js`:
+  ```js
+  var FORM_ENDPOINT = 'https://formspree.io/f/DIN-KODE';
+  ```
+- **Hvis afsendelsen fejler** (fx ingen server og ingen Formspree), mister I ikke kunden:
+  formularen åbner en færdigudfyldt e-mail til info@lyngventilation.dk, som kunden bare skal sende.
+
+**Måling:** Alle vigtige klik sendes til `window.dataLayer` (`cta_click`, `phone_click`,
+`form_step`, `lead_submit`, `lead_fallback`). Sæt Google Tag Manager eller GA4 op, så
+kan I se, hvilke knapper der giver henvendelser.
+
+Pladsholderen **[1 hverdag]** (svartid) står flere steder – ret den til det, I kan holde.
 
 ## 4. Tilpas chatbotten
 
