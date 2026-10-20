@@ -1,0 +1,15 @@
+{
+  "name": "airplus-hjemmeside",
+  "version": "1.0.0",
+  "description": "Hjemmeside og AI-chatbot for Air Plus ApS",
+  "type": "module",
+  "private": true,
+  "main": "server.js",
+  "scripts": {
+    "start": "node --env-file=.env server.js",
+    "start:uden-env": "node server.js"
+  },
+  "engines": {
+    "node": ">=20.6"
+  }
+}
