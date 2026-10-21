@@ -57,17 +57,24 @@
   /* ---------- Mobilmenu ---------- */
   var navToggle = $('.nav-toggle');
   var nav = $('#main-nav');
+  var isMobile = function () { return window.matchMedia('(max-width: 760px)').matches; };
+
   if (navToggle && nav) {
-    navToggle.addEventListener('click', function () {
-      var open = nav.classList.toggle('is-open');
+    var setNav = function (open) {
+      nav.classList.toggle('is-open', open);
+      document.body.classList.toggle('nav-open', open); // låser scroll bag fuldskærmsmenuen på mobil
       navToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
       navToggle.setAttribute('aria-label', open ? 'Luk menu' : 'Åbn menu');
-    });
+    };
+    navToggle.addEventListener('click', function () { setNav(!nav.classList.contains('is-open')); });
     $$('a', nav).forEach(function (a) {
-      a.addEventListener('click', function () {
-        nav.classList.remove('is-open');
-        navToggle.setAttribute('aria-expanded', 'false');
-      });
+      a.addEventListener('click', function () { setNav(false); });
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && nav.classList.contains('is-open')) { setNav(false); navToggle.focus(); }
+    });
+    window.addEventListener('resize', function () {
+      if (!window.matchMedia('(max-width: 1080px)').matches && nav.classList.contains('is-open')) setNav(false);
     });
   }
 
@@ -157,6 +164,20 @@
     recoActions.hidden = !has;
     topService = has ? recs[0].s.service : null;
     if (has) recoCta.textContent = 'Få tilbud på ' + recs[0].s.title.toLowerCase();
+    // Mobil: fast knap, der viser at der er et resultat, og hopper ned til det
+    if (recoJump) {
+      recoJump.hidden = !has;
+      $('#reco-jump-count').textContent = '(' + selected.length + ' valgt)';
+    }
+  }
+
+  var recoJump = $('#reco-jump');
+  if (recoJump) {
+    recoJump.addEventListener('click', function () {
+      var panel = $('#reco-panel');
+      if (panel) panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      track('cta_click', { cta: 'indeklima-se-anbefaling' });
+    });
   }
 
   symptomBtns.forEach(function (b) {
@@ -188,7 +209,16 @@
     if (focus) tab.focus();
   }
   tabs.forEach(function (t, i) {
-    t.addEventListener('click', function () { selectTab(t); });
+    t.addEventListener('click', function () {
+      selectTab(t);
+      // Mobil (harmonika): hold den valgte ydelse i toppen, så teksten står lige under
+      if (isMobile()) {
+        var top = t.getBoundingClientRect().top;
+        var header = $('.site-header');
+        var min = header ? header.getBoundingClientRect().height : 0;
+        if (top < min || top > window.innerHeight * 0.45) t.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    });
     t.addEventListener('keydown', function (e) {
       var next = null;
       if (e.key === 'ArrowDown' || e.key === 'ArrowRight') next = tabs[(i + 1) % tabs.length];
@@ -209,6 +239,9 @@
       var cat = f.dataset.filter;
       filters.forEach(function (x) { x.setAttribute('aria-pressed', x === f ? 'true' : 'false'); });
       projects.forEach(function (p) { p.hidden = !(cat === 'alle' || p.dataset.cat === cat); });
+      var row = $('.projects');
+      if (row) row.scrollLeft = 0; // mobil-karrusel starter forfra
+
     });
   });
 
@@ -310,7 +343,11 @@
       stepName.textContent = NAMES[step];
       bar.style.width = (step === 1 ? 50 : 100) + '%';
       hideError();
-      if (focus && step === 2) setTimeout(function () { (fName.value ? fPhone : fName).focus({ preventScroll: true }); }, 60);
+      if (focus && step === 2) {
+        // Mobil: sørg for at formularkortet står øverst, så felterne er synlige over tastaturet
+        if (isMobile()) form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        setTimeout(function () { (fName.value ? fPhone : fName).focus({ preventScroll: true }); }, 60);
+      }
     }
 
     function showError(msg) { errorEl.textContent = msg; errorEl.hidden = false; }
@@ -437,7 +474,8 @@
     go(1);
 
     function scrollToForm() {
-      var target = $('#kontakt');
+      // På mobil står formularen øverst i kontaktsektionen – hop direkte til den
+      var target = isMobile() ? $('#quote') : $('#kontakt');
       if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
@@ -469,14 +507,26 @@
     });
   });
 
-  /* ---------- Mobil bundbjælke: skjul den, når formularen er i billedet ---------- */
+  /* ---------- Mobil bundbjælke ----------
+     Skjules, mens heroens egne knapper kan ses (ingen dobbelte knapper),
+     og når formularen er i billedet (så den ikke dækker felterne). */
   var bar = $('#mobile-cta');
   var contact = $('#kontakt');
+  var heroBtns = $('.hero .btn-row');
   if (bar && contact && 'IntersectionObserver' in window) {
+    var inContact = false, inHero = !!heroBtns;
+    var update = function () {
+      bar.classList.toggle('is-hidden', inContact || inHero);
+      document.body.classList.toggle('in-contact', inContact);
+    };
     new IntersectionObserver(function (entries) {
-      var inView = entries[0].isIntersecting;
-      bar.classList.toggle('is-hidden', inView);
-      document.body.classList.toggle('in-contact', inView);
+      inContact = entries[0].isIntersecting; update();
     }, { threshold: 0.05 }).observe(contact);
+    if (heroBtns) {
+      new IntersectionObserver(function (entries) {
+        inHero = entries[0].isIntersecting; update();
+      }, { threshold: 0 }).observe(heroBtns);
+    }
+    update();
   }
 })();

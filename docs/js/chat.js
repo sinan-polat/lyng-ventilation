@@ -157,16 +157,21 @@
   }
 
   /* ---------- Åbn / luk ---------- */
+  var opener = null; // knappen der åbnede chatten (på mobil: bundbjælken)
   function openChat() {
     if (!started) { resetChat(); started = true; }
+    opener = document.activeElement;
     panel.hidden = false;
     launcher.setAttribute('aria-expanded', 'true');
+    document.body.classList.add('chat-open');
     setTimeout(function () { input.focus(); }, 50);
   }
   function closeChat() {
     panel.hidden = true;
     launcher.setAttribute('aria-expanded', 'false');
-    launcher.focus();
+    document.body.classList.remove('chat-open');
+    var back = (opener && opener.offsetParent !== null) ? opener : launcher;
+    if (back && back.offsetParent !== null) back.focus();
   }
   launcher.addEventListener('click', openChat);
   document.getElementById('chat-close').addEventListener('click', closeChat);
@@ -180,6 +185,7 @@
     b.addEventListener('click', function () {
       panel.hidden = true;
       launcher.setAttribute('aria-expanded', 'false');
+      document.body.classList.remove('chat-open');
       var cb = b.getAttribute('data-chat-quote') === 'callback';
       var lastQ = turns.filter(function (t) { return t.role === 'user'; }).map(function (t) { return t.content; }).slice(-1)[0];
       if (window.LyngQuote) window.LyngQuote.open(cb ? 'Bliv ringet op' : '', lastQ ? 'Fra chatten: ' + lastQ : '');

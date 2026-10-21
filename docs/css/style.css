@@ -590,3 +590,200 @@ h1, h2, h3, h4 { text-wrap: balance; }
   body.in-contact .chat-launcher { opacity: 0; pointer-events: none; transform: translateY(20px); }
   .chat-launcher { transition: opacity .2s, transform .2s; }
 }
+
+/* =========================================================
+   MOBIL-UX (≤ 760 px) – kortere side, større trykflader,
+   hurtigere vej til kontakt. Desktop er uændret.
+   ========================================================= */
+
+/* Elementer der kun findes på mobil */
+.reco-jump, .nav-call-mobile, .mobile-cta-chat { display: none; }
+.nav-toggle .ico-close { display: none; }
+.nav-toggle[aria-expanded="true"] .ico-open { display: none; }
+.nav-toggle[aria-expanded="true"] .ico-close { display: block; }
+
+@media (max-width: 760px) {
+  body { font-size: 16px; }
+  .section { padding-block: 56px; }
+  .section-lede { font-size: 17px; margin-bottom: 24px; }
+  .section-head-row { margin-bottom: 24px; gap: 16px; }
+  .h2 { font-size: clamp(28px, 8vw, 34px); }
+  .btn { white-space: normal; text-align: center; }
+  .btn-lg { font-size: 17px; }
+  .btn-anim:hover { transform: none; }
+
+  /* Header + fuldskærmsmenu */
+  .main-nav {
+    height: calc(100dvh - var(--header-h) - 1px); overflow-y: auto; overscroll-behavior: contain;
+    padding: 8px max(16px, env(safe-area-inset-left, 0px)) max(24px, env(safe-area-inset-bottom, 0px));
+  }
+  .main-nav a { min-height: 60px; display: flex; align-items: center; padding: 0; font-family: var(--font-display); font-stretch: 110%; font-weight: 700; font-size: 22px; color: var(--white); }
+  .main-nav .nav-cta-mobile, .main-nav .nav-call-mobile {
+    justify-content: center; min-height: 56px; margin-top: 12px; border-radius: 999px; border-bottom: 0 !important;
+    font-family: var(--font-body); font-stretch: 100%; font-size: 17px; font-weight: 800;
+  }
+  .main-nav .nav-cta-mobile { margin-top: 24px; background: var(--accent); color: var(--ink) !important; }
+  .main-nav .nav-call-mobile { display: flex; border: 2px solid var(--white); }
+  body.nav-open { overflow: hidden; }
+  body.nav-open .mobile-cta { transform: translateY(110%); }
+
+  /* Hero: kort og fokuseret – illustrationen vises kun på større skærme */
+  .hero-grid { padding-block: 32px 44px; gap: 0; }
+  .hero-visual, .hero-facts { display: none; }
+  .eyebrow-pill { font-size: 11px; letter-spacing: .05em; padding: 7px 12px; gap: 8px; margin-bottom: 20px; max-width: 100%; }
+  .hero-title { font-size: clamp(36px, 11vw, 46px); margin-bottom: 16px; }
+  .hero-lede { font-size: 17px; margin-bottom: 24px; }
+  .hero .btn-row { flex-direction: column; margin-bottom: 36px; }
+  .hero .btn-row .btn { width: 100%; }
+  .trust-line.light { margin: -22px 0 16px; font-size: 13px; gap: 4px 14px; }
+  .hero-quiz-link { margin-bottom: 0; }
+  .marquee { padding: 12px 0; }
+  .marquee-track { font-size: 18px; }
+
+  /* Indeklima-tjek: tættere valg + fast "se anbefaling"-knap */
+  .symptoms { gap: 8px; }
+  .symptom { min-height: 50px; font-size: 16px; padding: 8px 18px 8px 12px; }
+  .symptom:hover { transform: none; }
+  .reco-jump {
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    position: sticky; bottom: calc(84px + env(safe-area-inset-bottom, 0px)); z-index: 5;
+    flex: 1 1 100%; min-height: 52px; margin-top: 8px; border: 0; border-radius: 999px;
+    background: var(--accent); color: var(--ink); font-weight: 800; font-size: 16px; cursor: pointer;
+    box-shadow: 0 10px 26px rgba(11,27,43,.28); animation: fadeUp .25s ease both;
+  }
+  .reco-jump[hidden] { display: none !important; }
+  .reco-panel { padding: 22px; scroll-margin-top: calc(var(--header-h) + 12px); }
+  .reco-empty { padding: 4px 0; flex-direction: row; align-items: center; gap: 14px; }
+  .reco-empty svg { flex-shrink: 0; width: 32px; height: 32px; }
+  .reco-empty p { font-size: 16px; }
+  .reco-why, .reco-meter { margin-left: 0; }
+
+  /* Ydelser: harmonika – teksten åbner lige under den valgte ydelse */
+  .section-aside { font-size: 16px; }
+  .svc-grid { flex-direction: column; gap: 8px; }
+  .svc-tabs, .svc-panels { display: contents; }
+  #tab-1 { order: 1; } #panel-1 { order: 2; }
+  #tab-2 { order: 3; } #panel-2 { order: 4; }
+  #tab-3 { order: 5; } #panel-3 { order: 6; }
+  #tab-4 { order: 7; } #panel-4 { order: 8; }
+  .svc-tab { min-height: 60px; scroll-margin-top: calc(var(--header-h) + 8px); }
+  .svc-tab svg { transition: transform .2s; }
+  .svc-tab[aria-selected="true"] svg { transform: rotate(90deg); }
+  .svc-panel { border-radius: 16px; margin-bottom: 8px; }
+  .svc-panel .ph { display: none; }
+  .svc-body { padding: 20px; gap: 12px; }
+  .svc-body > p { font-size: 16px; }
+  .svc-body .h3 { font-size: 22px; }
+  .svc-meta { display: none; }
+  .checks li { flex-basis: 100%; }
+  .svc-body .btn { align-self: stretch; }
+
+  /* Proces: kompakt tidslinje */
+  .steps { margin-top: 24px; flex-direction: column; gap: 0; }
+  .step { flex: none; display: grid; grid-template-columns: 44px minmax(0, 1fr); column-gap: 16px; padding-bottom: 22px; position: relative; }
+  .step:not(.step-last)::before { content: ""; position: absolute; left: 21px; top: 50px; bottom: 6px; width: 2px; background: repeating-linear-gradient(180deg, var(--line-2) 0 5px, transparent 5px 10px); }
+  .step-num { grid-row: 1 / span 2; margin: 0; }
+  .step-num i { display: none; }
+  .step-num span { width: 44px; height: 44px; border-radius: 50%; border: 2px solid var(--ink); display: grid; place-items: center; font-family: var(--font-mono); font-stretch: 100%; font-weight: 600; font-size: 15px; color: var(--ink); -webkit-text-stroke: 0; }
+  .step-last .step-num span { background: var(--accent); border-color: var(--accent); color: var(--ink); }
+  .step .h4 { font-size: 19px; margin: 10px 0 4px; }
+  .step p { font-size: 15px; }
+
+  /* Om os */
+  .about-grid { gap: 28px; }
+  .about-visual { order: 2; }
+  .about-visual .ph-tall { display: none; }
+  .promise { margin-top: 0; }
+  .lead { font-size: 17px; }
+  .stats > div { flex: 1 1 0; padding-right: 10px; }
+  .stats dt { font-size: 28px; }
+  .stats dd { font-size: 13px; }
+
+  /* Projekter: filtre på én linje + swipe-karrusel */
+  .filters { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; margin: 0 calc(-1 * var(--gutter)); padding: 0 var(--gutter) 4px; width: calc(100% + 2 * var(--gutter)); }
+  .filters::-webkit-scrollbar, .projects::-webkit-scrollbar { display: none; }
+  .filter { flex: 0 0 auto; }
+  .projects {
+    display: flex; gap: 12px; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none;
+    margin: 0 calc(-1 * var(--gutter)); padding: 4px var(--gutter) 12px; scroll-padding-inline: var(--gutter);
+  }
+  .project { flex: 0 0 82%; scroll-snap-align: start; }
+  .project .ph { min-height: 170px; }
+  .project-body { padding: 16px 18px 20px; }
+  .lift:hover { transform: none; box-shadow: none; }
+
+  /* Udtalelser */
+  .review p { font-size: 21px; margin-bottom: 20px; }
+  .reviews { min-height: 0; }
+  .round-btn { width: 48px; height: 48px; }
+  .dots { margin-top: 20px; }
+  .ph-line { margin-top: 24px; }
+
+  /* FAQ */
+  .faq-grid { gap: 24px; }
+  .faq-grid .btn-row .btn { flex: 1 1 auto; }
+  .faq summary { min-height: 62px; padding: 12px 16px 12px 18px; font-size: 17px; }
+  .faq p { padding: 0 18px 20px; font-size: 16px; }
+  .faq-icon { width: 32px; height: 32px; }
+
+  /* Kontakt: formularen først, derefter telefon og oplysninger */
+  .contact-grid { flex-direction: column; flex-wrap: nowrap; gap: 0; }
+  .contact-info { display: contents; }
+  .contact-info > .kicker, .contact-info > .h2, .contact-info > .section-lede { order: 1; }
+  .contact-grid > .quote-card { order: 2; flex: none; width: 100%; margin-bottom: 20px; scroll-margin-top: calc(var(--header-h) + 10px); }
+  .contact-info > .phone-card { order: 3; margin-bottom: 20px; }
+  .contact-info > .contact-list { order: 4; }
+  .section-lede.light { margin-bottom: 20px; }
+  .h2-xl { font-size: clamp(32px, 10vw, 40px); }
+  .quote-card { padding: 20px; border-radius: 20px; }
+  .tiles[data-field="service"] { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .tiles[data-field="service"] .tile { min-height: 84px; padding: 10px 12px; }
+  .tiles[data-field="service"] .tile:hover { transform: none; }
+  .tile strong { font-size: 15px; line-height: 1.25; }
+  .tile span { font-size: 13px; line-height: 1.3; }
+  .progress { margin-bottom: 20px; }
+  .phone-card { padding: 16px 18px; gap: 14px; }
+  .phone-icon { width: 48px; height: 48px; }
+  .phone-number { font-size: 28px; }
+  .contact-list { gap: 16px; }
+  .contact-list > div:first-child { grid-column: 1 / -1; }
+  .contact-list dd a { display: inline-flex; align-items: center; min-height: 44px; margin: -10px 0; }
+
+  /* Footer: ryddet op og store trykflader */
+  .site-footer { padding-block: 44px 24px; }
+  .footer-word { display: none; }
+  .footer-cols { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px 16px; }
+  .footer-about { grid-column: 1 / -1; max-width: none; }
+  .footer-cols > div:nth-child(2) { order: 1; }
+  .footer-cols > div:nth-child(4) { order: 2; }
+  .footer-cols > div:nth-child(3) { order: 3; grid-column: 1 / -1; }
+  .site-footer ul { gap: 0; }
+  .site-footer li { min-height: 44px; display: flex; align-items: center; }
+  .site-footer li a { display: flex; align-items: center; min-height: 44px; width: 100%; }
+  .footer-bottom { flex-direction: column; }
+
+  /* Bundbjælke: Ring · Få tilbud · Chat (erstatter den svævende chatknap) */
+  .mobile-cta { grid-template-columns: minmax(0, 1fr) minmax(0, 1.35fr) 50px; }
+  .mobile-cta-chat {
+    display: grid; place-items: center; width: 50px; height: 50px; border-radius: 50%;
+    border: 1px solid var(--line-dark-2); background: var(--ink-3); color: var(--white); cursor: pointer; padding: 0;
+  }
+  .chat-launcher { display: none !important; }
+  .mobile-cta.is-hidden { pointer-events: none; }
+}
+
+@media (max-width: 520px) {
+  body.chat-open { overflow: hidden; }
+}
+
+@media (max-width: 360px) {
+  .brand-logo { height: 44px; }
+  .pill-phone { white-space: nowrap; padding: 0 10px; gap: 6px; font-size: 14px; }
+  .pill-phone .status-dot { display: none; }
+  .header-inner { gap: 8px; }
+  .btn-lg { font-size: 16px; padding: 0 20px; }
+  .hero-title { font-size: 34px; }
+  .tiles[data-field="service"] { grid-template-columns: minmax(0, 1fr); }
+  .tiles[data-field="service"] .tile { min-height: 64px; }
+  .mobile-cta a { font-size: 15px; }
+}

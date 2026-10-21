@@ -2,7 +2,7 @@
 <html lang="da">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Lyng Ventilation ApS – Installation og indregulering af ventilation i Greve</title>
   <meta name="description" content="Lyng Ventilation ApS installerer og indregulerer ventilationsanlæg for private og erhverv. Rådgivning, planlægning og et sundt indeklima. Ring +45 42 71 22 71 for et uforpligtende tilbud.">
   <meta name="theme-color" content="#0B1B2B">
@@ -49,7 +49,8 @@
     </a>
 
     <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="main-nav" aria-label="Åbn menu">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+      <svg class="ico-open" aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+      <svg class="ico-close" aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>
     </button>
 
     <nav id="main-nav" class="main-nav" aria-label="Hovedmenu">
@@ -59,6 +60,7 @@
       <a href="#om">Om os</a>
       <a href="#faq">FAQ</a>
       <a href="#kontakt" class="nav-cta-mobile" data-open-quote="" data-track="menu-tilbud">Få et tilbud</a>
+      <a href="tel:+4542712271" class="nav-call-mobile" data-track="menu-ring">Ring 42 71 22 71</a>
     </nav>
 
     <div class="header-cta">
@@ -190,9 +192,10 @@
         <button type="button" class="symptom" data-id="ujaevn" aria-pressed="false"><span class="check" aria-hidden="true"></span>Nogle rum får for lidt eller for meget luft</button>
         <button type="button" class="symptom" data-id="energi" aria-pressed="false"><span class="check" aria-hidden="true"></span>Højt energiforbrug på anlægget</button>
         <button type="button" class="symptom" data-id="byg" aria-pressed="false"><span class="check" aria-hidden="true"></span>Ombygning eller nybyggeri</button>
+        <button type="button" class="reco-jump" id="reco-jump" hidden>Se vores anbefaling <span id="reco-jump-count"></span> ↓</button>
       </div>
 
-      <div class="reco-panel" aria-live="polite">
+      <div class="reco-panel" id="reco-panel" aria-live="polite">
         <div class="reco-head">
           <span>Vores anbefaling</span>
           <span id="reco-count">0 valgt</span>
@@ -437,7 +440,7 @@
     <div>
       <p class="kicker">→ FAQ</p>
       <h2 class="h2">Spørgsmål, vi ofte får</h2>
-      <p class="section-lede">Fandt du ikke svaret? Spørg vores assistent nederst til højre – eller ring.</p>
+      <p class="section-lede">Fandt du ikke svaret? Spørg vores assistent i chatten – eller ring.</p>
       <div class="btn-row">
         <a href="tel:+4542712271" class="btn btn-dark btn-anim">Ring 42 71 22 71</a>
         <button type="button" class="btn btn-outline-dark btn-anim" data-open-chat>Spørg assistenten</button>
@@ -666,6 +669,9 @@
     Ring nu
   </a>
   <a href="#kontakt" class="mobile-cta-quote" data-open-quote="" data-track="mobil-tilbud">Få et tilbud</a>
+  <button type="button" class="mobile-cta-chat" data-open-chat data-track="mobil-chat" aria-label="Chat med Lyng Assistent">
+    <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+  </button>
 </nav>
 
 <script src="js/main.js" defer></script>
